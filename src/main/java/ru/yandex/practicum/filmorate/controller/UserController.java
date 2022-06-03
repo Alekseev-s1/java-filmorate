@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.InvalidItemException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -21,7 +22,7 @@ public class UserController {
     private static long userId = 1;
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) throws ValidationException {
+    public User createUser(@Valid @RequestBody User user) {
         createUserValidation(user);
         user.setId(userId++);
         users.put(user.getId(), user);
@@ -29,7 +30,8 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) throws ValidationException {
+    public User updateUser(@Valid @RequestBody User user) {
+        createUserValidation(user);
         updateUserValidation(user);
         log.debug("Обновляемый пользователь: {}", user);
         users.put(user.getId(), user);
@@ -42,7 +44,7 @@ public class UserController {
         return new ArrayList<>(users.values());
     }
 
-    private void createUserValidation(User user) throws ValidationException {
+    private void createUserValidation(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank()) {
             log.warn("Попытка добавить пользователя с пустой электронной почтой");
             throw new ValidationException("Электронная почта не может быть пустой");
@@ -65,12 +67,16 @@ public class UserController {
         }
     }
 
-    private void updateUserValidation(User user) throws ValidationException {
+    private void updateUserValidation(User user) {
         long id = user.getId();
 
         if (id == 0) {
             log.warn("Попытка обновить пользователя без id");
             throw new ValidationException("У переданного пользователя отсутствует id");
+        }
+        if (id < 0) {
+            log.warn("Попытка добавить пользователя с отрицательным id = {}", id);
+            throw new InvalidItemException("id не может быть отрицательным");
         }
         if (!users.containsKey(id)) {
             log.warn("Попытка обновить пользователя, отсутствующего в системе");

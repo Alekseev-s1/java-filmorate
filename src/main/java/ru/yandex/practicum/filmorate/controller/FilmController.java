@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.InvalidItemException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -20,7 +21,7 @@ public class FilmController {
     private static long filmId = 1;
 
     @PostMapping
-    public Film createFilm(@RequestBody Film film) throws ValidationException {
+    public Film createFilm(@RequestBody Film film) {
         createFilmValidation(film);
         film.setId(filmId++);
         films.put(film.getId(), film);
@@ -29,7 +30,8 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) throws ValidationException {
+    public Film updateFilm(@RequestBody Film film) {
+        createFilmValidation(film);
         updateFilmValidation(film);
         log.debug("Обновляемый фильм: {}", film);
         films.put(film.getId(), film);
@@ -42,7 +44,7 @@ public class FilmController {
         return new ArrayList<>(films.values());
     }
 
-    private void createFilmValidation(Film film) throws ValidationException {
+    private void createFilmValidation(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Попытка добавить фильм с пустым именем");
             throw new ValidationException("Название фильма не может быть пустым");
@@ -61,12 +63,16 @@ public class FilmController {
         }
     }
 
-    private void updateFilmValidation(Film film) throws ValidationException {
+    private void updateFilmValidation(Film film) {
         long id = film.getId();
 
         if (id == 0) {
             log.warn("Попытка обновить фильм без id");
             throw new ValidationException("У переданного фильма отсутствует id");
+        }
+        if (id < 0) {
+            log.warn("Попытка добавить фильм с отрицательным id = {}", id);
+            throw new InvalidItemException("id не может быть отрицательным");
         }
         if (!films.containsKey(id)) {
             log.warn("Попытка обновить фильм, отсутствующий в системе");

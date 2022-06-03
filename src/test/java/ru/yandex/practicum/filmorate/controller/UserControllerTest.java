@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import ru.yandex.practicum.filmorate.exception.InvalidItemException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -52,7 +54,7 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Электронная почта не может быть пустой",
                         result.getResolvedException().getMessage()));
@@ -69,7 +71,7 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Электронная почта не может быть пустой",
                         result.getResolvedException().getMessage()));
@@ -86,7 +88,7 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Электронная почта " + user.getEmail() + " должна содержать символ @",
                         result.getResolvedException().getMessage()));
@@ -102,7 +104,7 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Login не может быть пустым",
                         result.getResolvedException().getMessage()));
@@ -119,7 +121,7 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Login не может быть пустым",
                         result.getResolvedException().getMessage()));
@@ -136,7 +138,7 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Дата рождения " + user.getBirthday() + " не может быть больше текущей " + LocalDate.now(),
                         result.getResolvedException().getMessage()));
@@ -180,7 +182,7 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("У переданного пользователя отсутствует id",
                         result.getResolvedException().getMessage()));
@@ -198,9 +200,27 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Пользователя с id = 10 нет в системе",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void shouldThrowExceptionIfNegativeId() throws Exception {
+        User user = User.builder()
+                .id(-1)
+                .email(EMAIL)
+                .name(NAME)
+                .login(LOGIN)
+                .birthday(BIRTHDAY)
+                .build();
+
+        this.mockMvc
+                .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof InvalidItemException))
+                .andExpect(result -> assertEquals("id не может быть отрицательным",
                         result.getResolvedException().getMessage()));
     }
 }

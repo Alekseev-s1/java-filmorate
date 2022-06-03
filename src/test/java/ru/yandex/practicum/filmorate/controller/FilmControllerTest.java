@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.filmorate.exception.InvalidItemException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.net.URI;
 import java.time.Duration;
@@ -53,7 +55,7 @@ public class FilmControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Название фильма не может быть пустым", result.getResolvedException().getMessage()));
     }
@@ -69,7 +71,7 @@ public class FilmControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Название фильма не может быть пустым", result.getResolvedException().getMessage()));
     }
@@ -103,7 +105,7 @@ public class FilmControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Описание фильма не может быть больше 200 символов",
                         result.getResolvedException().getMessage()));
@@ -134,7 +136,7 @@ public class FilmControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Дата релиза не может быть раньше 28 декабря 1895",
                         result.getResolvedException().getMessage()));
@@ -151,7 +153,7 @@ public class FilmControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Продолжительность фильма должна быть положительным числом",
                         result.getResolvedException().getMessage()));
@@ -168,7 +170,7 @@ public class FilmControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Продолжительность фильма должна быть положительным числом",
                         result.getResolvedException().getMessage()));
@@ -185,7 +187,7 @@ public class FilmControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("У переданного фильма отсутствует id",
                         result.getResolvedException().getMessage()));
@@ -205,9 +207,27 @@ public class FilmControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
                 .andExpect(result -> assertEquals("Фильма с id = 10 нет в системе",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void shouldThrowExceptionIfNegativeId() throws Exception {
+        Film film = Film.builder()
+                .id(-1)
+                .name(FILM_NAME)
+                .description(FILM_DESC)
+                .releaseDate(RELEASE_DATE)
+                .duration(DURATION)
+                .build();
+
+        this.mockMvc
+                .perform(put(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof InvalidItemException))
+                .andExpect(result -> assertEquals("id не может быть отрицательным",
                         result.getResolvedException().getMessage()));
     }
 }

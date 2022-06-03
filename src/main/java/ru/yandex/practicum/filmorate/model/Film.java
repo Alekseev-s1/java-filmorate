@@ -18,15 +18,4 @@ public class Film {
     private final LocalDate releaseDate;
     @JsonSerialize(using = CustomDurationSerializer.class)
     private final Duration duration;
-
-    /*@Override
-    public String toString() {
-        return "Film{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", releaseDate=" + releaseDate +
-                ", duration=" + duration.toMinutes() +
-                '}';
-    }*/
 }
