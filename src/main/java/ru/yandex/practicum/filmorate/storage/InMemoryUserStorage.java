@@ -38,8 +38,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getUsers() {
+    public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public User getUserById(long id) {
+        return users.get(id);
     }
 
     private void createUserValidation(User user) {
