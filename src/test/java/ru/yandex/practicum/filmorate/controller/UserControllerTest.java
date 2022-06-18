@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.yandex.practicum.filmorate.exception.InvalidItemException;
+import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -56,7 +56,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Электронная почта не может быть пустой",
+                .andExpect(result -> assertEquals("Электронная почта не может быть пустой!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -73,7 +73,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Электронная почта не может быть пустой",
+                .andExpect(result -> assertEquals("Электронная почта не может быть пустой!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -90,7 +90,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Электронная почта " + user.getEmail() + " должна содержать символ @",
+                .andExpect(result -> assertEquals("Электронная почта " + user.getEmail() + " должна содержать символ @!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -106,7 +106,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Login не может быть пустым",
+                .andExpect(result -> assertEquals("Login не может быть пустым!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -123,7 +123,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Login не может быть пустым",
+                .andExpect(result -> assertEquals("Login не может быть пустым!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -140,7 +140,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Дата рождения " + user.getBirthday() + " не может быть больше текущей " + LocalDate.now(),
+                .andExpect(result -> assertEquals("Дата рождения " + user.getBirthday() + " не может быть больше текущей " + LocalDate.now() + "!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -182,9 +182,9 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("У переданного пользователя отсутствует id",
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ItemNotFoundException))
+                .andExpect(result -> assertEquals("id не может быть меньше либо равно нулю!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -200,9 +200,9 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Пользователя с id = 10 нет в системе",
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ItemNotFoundException))
+                .andExpect(result -> assertEquals("Пользователь с id = 10 не найден!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -218,9 +218,9 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof InvalidItemException))
-                .andExpect(result -> assertEquals("id не может быть отрицательным",
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ItemNotFoundException))
+                .andExpect(result -> assertEquals("id не может быть меньше либо равно нулю!",
                         result.getResolvedException().getMessage()));
     }
 }

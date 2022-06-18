@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.serializer.CustomDurationSerializer;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -14,11 +15,11 @@ import java.util.Set;
 public class Film {
 
     private long id;
-    private final String name;
-    private final String description;
-    private final LocalDate releaseDate;
+    private String name;
+    private String description;
+    private LocalDate releaseDate;
     @JsonSerialize(using = CustomDurationSerializer.class)
-    private final Duration duration;
+    private Duration duration;
     private int likesCount;
-    private Set<User> likedUsers;
+    private final Set<Long> likedUsersId = new HashSet<>();
 }
