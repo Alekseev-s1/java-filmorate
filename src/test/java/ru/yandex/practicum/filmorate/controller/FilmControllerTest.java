@@ -188,7 +188,7 @@ public class FilmControllerTest {
                 .perform(put(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ItemNotFoundException))
-                .andExpect(result -> assertEquals("id не может быть меньше либо равно нулю!",
+                .andExpect(result -> assertEquals("Фильм с id = 0 не найден!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -226,7 +226,7 @@ public class FilmControllerTest {
                 .perform(put(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ItemNotFoundException))
-                .andExpect(result -> assertEquals("id не может быть меньше либо равно нулю!",
+                .andExpect(result -> assertEquals("Фильм с id = -1 не найден!",
                         result.getResolvedException().getMessage()));
     }
 }

@@ -184,7 +184,7 @@ public class UserControllerTest {
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ItemNotFoundException))
-                .andExpect(result -> assertEquals("id не может быть меньше либо равно нулю!",
+                .andExpect(result -> assertEquals("Пользователь с id = 0 не найден!",
                         result.getResolvedException().getMessage()));
     }
 
@@ -220,7 +220,7 @@ public class UserControllerTest {
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ItemNotFoundException))
-                .andExpect(result -> assertEquals("id не может быть меньше либо равно нулю!",
+                .andExpect(result -> assertEquals("Пользователь с id = -1 не найден!",
                         result.getResolvedException().getMessage()));
     }
 }
