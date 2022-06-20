@@ -35,13 +35,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(long id) {
-        return users.get(id);
+    public Optional<User> getUserById(long id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override
-    public List<User> getFriendsByUserId(long id) {
-        Set<Long> friendsId = users.get(id).getFriendsId();
+    public List<User> getFriends(User user) {
+        Set<Long> friendsId = user.getFriendsId();
         List<User> friends = new ArrayList<>();
         friendsId.forEach(friendId -> friends.add(users.get(friendId)));
         return friends;

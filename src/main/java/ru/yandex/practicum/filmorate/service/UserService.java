@@ -27,8 +27,8 @@ public class UserService {
     }
 
     public User getUserById(long id) {
-        userIdValidation(id);
-        return userStorage.getUserById(id);
+        return userStorage.getUserById(id)
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Пользователь с id = %d не найден!", id)));
     }
 
     public User createUser(User user) {
@@ -38,57 +38,41 @@ public class UserService {
 
     public User updateUser(User user) {
         createUserValidation(user);
-        userIdValidation(user.getId());
+        getUserById(user.getId());
         return userStorage.updateUser(user);
     }
 
     public void addFriend(long userId, long friendId) {
-        userIdValidation(userId);
-        userIdValidation(friendId);
-
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
 
         user.getFriendsId().add(friendId);
         friend.getFriendsId().add(userId);
     }
 
     public void removeFriend(long userId, long friendId) {
-        userIdValidation(userId);
-        userIdValidation(friendId);
-
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
 
         user.getFriendsId().remove(friendId);
         friend.getFriendsId().remove(userId);
     }
 
     public List<User> getAllFriends(long userId) {
-        userIdValidation(userId);
-
-        return userStorage.getFriendsByUserId(userId);
+        User user = getUserById(userId);
+        return userStorage.getFriends(user);
     }
 
     public List<User> getCommonFriends(long userId, long otherUserId) {
-        userIdValidation(userId);
-        userIdValidation(otherUserId);
+        User user = getUserById(userId);
+        User otherUser = getUserById(otherUserId);
 
-        List<User> userFriends = userStorage.getFriendsByUserId(userId);
-        List<User> otherUserFriends = userStorage.getFriendsByUserId(otherUserId);
+        List<User> userFriends = userStorage.getFriends(user);
+        List<User> otherUserFriends = userStorage.getFriends(otherUser);
 
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
                 .collect(Collectors.toList());
-    }
-
-    private void userIdValidation(long id) {
-        if (id <= 0) {
-            throw new ItemNotFoundException("id не может быть меньше либо равно нулю!");
-        }
-        if (userStorage.getUserById(id) == null) {
-            throw new ItemNotFoundException(String.format("Пользователь с id = %d не найден!", id));
-        }
     }
 
     private void createUserValidation(User user) {

@@ -32,8 +32,13 @@ public class FilmService {
     }
 
     public Film getFilmById(long id) {
-        filmIdValidation(id);
-        return filmStorage.getFilmById(id);
+        return filmStorage.getFilmById(id)
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Фильм с id = %d не найден!", id)));
+    }
+
+    public User getUserById(long id) {
+        return userStorage.getUserById(id)
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Пользователь с id = %d не найден!", id)));
     }
 
     public Film createFilm(Film film) {
@@ -43,15 +48,13 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         createFilmValidation(film);
-        filmIdValidation(film.getId());
+        getFilmById(film.getId());
         return filmStorage.updateFilm(film);
     }
 
     public void addLike(long filmId, long userId) {
-        filmIdValidation(filmId);
-        userIdValidation(userId);
-
-        Film film = filmStorage.getFilmById(filmId);
+        Film film = getFilmById(filmId);
+        getUserById(userId);
 
         if (!film.getLikedUsersId().contains(userId)) {
             int likesCount = film.getLikesCount();
@@ -61,10 +64,8 @@ public class FilmService {
     }
 
     public void removeLike(long filmId, long userId) {
-        filmIdValidation(filmId);
-        userIdValidation(userId);
-
-        Film film = filmStorage.getFilmById(filmId);
+        Film film = getFilmById(filmId);
+        getUserById(userId);
 
         if (film.getLikedUsersId().contains(userId)) {
             int likesCount = film.getLikesCount();
@@ -74,33 +75,11 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        if (count < 0) {
-            throw new ValidationException("Количество фильмов не может быть меньше нуля!");
-        }
-
         List<Film> allFilms = filmStorage.getAllFilms();
         return allFilms.stream()
                 .sorted(Comparator.comparingInt(Film::getLikesCount).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
-    }
-
-    private void filmIdValidation(long id) {
-        if (id <= 0) {
-            throw new ItemNotFoundException("id не может быть меньше либо равно нулю!");
-        }
-        if (filmStorage.getFilmById(id) == null) {
-            throw new ItemNotFoundException(String.format("Фильм с id = %d не найден!", id));
-        }
-    }
-
-    private void userIdValidation(long id) {
-        if (id <= 0) {
-            throw new ItemNotFoundException("id не может быть меньше либо равно нулю!");
-        }
-        if (userStorage.getUserById(id) == null) {
-            throw new ItemNotFoundException(String.format("Пользователь с id = %d не найден!", id));
-        }
     }
 
     private void createFilmValidation(Film film) {
