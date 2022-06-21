@@ -4,11 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,25 +74,9 @@ public class UserService {
     }
 
     private void createUserValidation(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            log.warn("Попытка добавить пользователя с пустой электронной почтой");
-            throw new ValidationException("Электронная почта не может быть пустой!");
-        }
-        if (!user.getEmail().contains("@")) {
-            log.warn("Попытка добавить пользователя с электронной почтой {} без символа @", user.getEmail());
-            throw new ValidationException("Электронная почта " + user.getEmail() + " должна содержать символ @!");
-        }
-        if (user.getLogin() == null || user.getLogin().isBlank()) {
-            log.warn("Попытка добавить пользователя с пустым логином");
-            throw new ValidationException("Login не может быть пустым!");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             log.warn("Попытка добавить пользователя с пустым именем!");
             user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Попытка добавить пользователя с датой рождения {} из будущего", user.getBirthday());
-            throw new ValidationException("Дата рождения " + user.getBirthday() + " не может быть больше текущей " + LocalDate.now() + "!");
         }
     }
 }

@@ -10,7 +10,7 @@ import java.util.*;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
-    private static long filmId = 1;
+    private long filmId = 1;
 
     @Override
     public Film createFilm(Film film) {
