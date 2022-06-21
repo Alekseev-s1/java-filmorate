@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +10,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.yandex.practicum.filmorate.exception.InvalidItemException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.net.URI;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -54,10 +53,9 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Электронная почта не может быть пустой",
-                        result.getResolvedException().getMessage()));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.email", is("Электронная почта (email) обязательна для заполнения")));
     }
 
     @Test
@@ -71,10 +69,11 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Электронная почта не может быть пустой",
-                        result.getResolvedException().getMessage()));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.email",
+                                Matchers.anyOf(is("Неверный формат электронной почты (email)"),
+                                        is("Электронная почта (email) обязательна для заполнения"))));
     }
 
     @Test
@@ -89,9 +88,8 @@ public class UserControllerTest {
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Электронная почта " + user.getEmail() + " должна содержать символ @",
-                        result.getResolvedException().getMessage()));
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.email", is("Неверный формат электронной почты (email)")));
     }
 
     @Test
@@ -104,10 +102,9 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Login не может быть пустым",
-                        result.getResolvedException().getMessage()));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.login", is("Поле login обязательно для заполнения")));
     }
 
     @Test
@@ -121,10 +118,9 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Login не может быть пустым",
-                        result.getResolvedException().getMessage()));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.login", is("Поле login обязательно для заполнения")));
     }
 
     @Test
@@ -138,10 +134,9 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Дата рождения " + user.getBirthday() + " не может быть больше текущей " + LocalDate.now(),
-                        result.getResolvedException().getMessage()));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.birthday", is("Дата рождения birthday не может быть больше текущей")));
     }
 
     @Test
@@ -154,7 +149,8 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(MockMvcResultMatchers.jsonPath("name").value(LOGIN));
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", is(LOGIN)));
     }
 
     @Test
@@ -182,10 +178,10 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("У переданного пользователя отсутствует id",
-                        result.getResolvedException().getMessage()));
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers
+                        .content()
+                        .string("Пользователь с id = 0 не найден!"));
     }
 
     @Test
@@ -200,10 +196,10 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ValidationException))
-                .andExpect(result -> assertEquals("Пользователя с id = 10 нет в системе",
-                        result.getResolvedException().getMessage()));
+                .andExpect(status().isNotFound())
+                .andExpect(MockMvcResultMatchers
+                        .content()
+                        .string("Пользователь с id = 10 не найден!"));
     }
 
     @Test
@@ -218,9 +214,10 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(put(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof InvalidItemException))
-                .andExpect(result -> assertEquals("id не может быть отрицательным",
-                        result.getResolvedException().getMessage()));
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ItemNotFoundException))
+                .andExpect(MockMvcResultMatchers
+                        .content()
+                        .string("Пользователь с id = -1 не найден!"));
     }
 }
