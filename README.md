@@ -6,7 +6,6 @@
 БД состоит из следующих таблиц:
 * user (пользователи)
 * friend (список друзей пользователей)
-* friendship_state ("статус" дружбы)
 * film (фильмы)
 * mpaRating (рейтинг MPA)
 * genre (жанры фильма)
@@ -46,8 +45,7 @@ WHERE g.name = 'Comedy';
 SELECT *
 FROM user
 WHERE user_id IN (
-    SELECT f.friend_id
-    FROM friends f
-    JOIN friendship_state fs ON f.state_id = fs.state_id
-    WHERE f.user_id = 3 AND fs.state = 'ACCEPTED')
+    SELECT friend_id
+    FROM friends
+    WHERE user_id = 3 AND state = 'ACCEPTED')
 ```
