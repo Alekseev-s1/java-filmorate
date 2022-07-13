@@ -20,8 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -64,7 +63,7 @@ public class FilmDbStorage implements FilmStorage {
 
         long filmId = keyHolder.getKey().longValue();
 
-        List<Genre> genres = film.getGenres();
+        Set<Genre> genres = film.getGenres();
         if (genres != null && !genres.isEmpty()) {
             genres.forEach(genre -> jdbcTemplate.update(genreSqlQuery, filmId, genre.getId()));
         }
@@ -124,7 +123,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        return Film.builder()
+        Film film = Film.builder()
                 .id(resultSet.getLong("film_id"))
                 .name(resultSet.getString("name"))
                 .description(resultSet.getString("description"))
@@ -135,7 +134,10 @@ public class FilmDbStorage implements FilmStorage {
                 .likedUsersId(userStorage.getLikedUsers(resultSet.getLong("film_id")).stream()
                         .map(User::getId)
                         .collect(Collectors.toList()))
-                .genres(genreDao.getFilmGenres(resultSet.getLong("film_id")))
+                .genres(new TreeSet<>(Comparator.comparingInt(Genre::getId)))
                 .build();
+
+        film.getGenres().addAll(genreDao.getFilmGenres(resultSet.getLong("film_id")));
+        return film;
     }
 }

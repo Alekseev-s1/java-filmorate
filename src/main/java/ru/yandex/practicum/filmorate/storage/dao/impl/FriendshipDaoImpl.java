@@ -17,22 +17,22 @@ public class FriendshipDaoImpl implements FriendshipDao {
     }
 
     @Override
-    public void addFriend(User user, User friend) {
+    public void addFriend(long userId, long friendId) {
         String sqlQuery = "INSERT INTO friends (user_id, friend_id, friendship_state) " +
                 "VALUES(?, ?, 'NOT_ACCEPTED')";
 
-        jdbcTemplate.update(sqlQuery, user.getId(), friend.getId());
+        jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
     @Override
-    public void removeFriend(User user, User friend) {
+    public void removeFriend(long userId, long friendId) {
         String deleteQuery = "DELETE FROM friends " +
                 "WHERE user_id = ? AND friend_id = ?";
         String updateQuery = "UPDATE friends " +
                 "SET friendship_state = 'NOT_ACCEPTED'" +
                 "WHERE user_id = ? AND friend_id = ?";
 
-        jdbcTemplate.update(deleteQuery, user.getId(), friend.getId());
-        jdbcTemplate.update(updateQuery, friend.getId(), user.getId());
+        jdbcTemplate.update(deleteQuery, userId, friendId);
+        jdbcTemplate.update(updateQuery, friendId, userId);
     }
 }

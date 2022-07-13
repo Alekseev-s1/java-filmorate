@@ -51,16 +51,16 @@ public class UserService {
         User friend = getUserById(friendId);
 
         if (!user.getFriendsId().contains(friendId) && !friend.getFriendsId().contains(userId)) {
-            friendshipDao.addFriend(user, friend);
+            friendshipDao.addFriend(userId, friendId);
         }
     }
 
     public void removeFriend(long userId, long friendId) {
         User user = getUserById(userId);
-        User friend = getUserById(friendId);
+        getUserById(friendId);
 
         if (user.getFriendsId().contains(friendId)) {
-            friendshipDao.removeFriend(user, friend);
+            friendshipDao.removeFriend(userId, friendId);
         }
     }
 

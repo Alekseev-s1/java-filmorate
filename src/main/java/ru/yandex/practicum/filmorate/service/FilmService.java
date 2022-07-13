@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FilmLikesDao;
+import ru.yandex.practicum.filmorate.storage.dao.GenreDao;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,7 +26,8 @@ public class FilmService {
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       FilmLikesDao filmLikesDao) {
+                       FilmLikesDao filmLikesDao,
+                       GenreDao genreDao) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.filmLikesDao = filmLikesDao;
@@ -58,26 +60,26 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         Film film = getFilmById(filmId);
-        User user = getUserById(userId);
+        getUserById(userId);
 
         if (!film.getLikedUsersId().contains(userId)) {
             int filmRate = film.getRate();
             film.setRate(++filmRate);
 
-            filmLikesDao.addLike(film, user);
+            filmLikesDao.addLike(filmId, userId);
             filmStorage.updateFilm(film);
         }
     }
 
     public void removeLike(long filmId, long userId) {
         Film film = getFilmById(filmId);
-        User user = getUserById(userId);
+        getUserById(userId);
 
         if (film.getLikedUsersId().contains(userId)) {
             int filmRate = film.getRate();
             film.setRate(--filmRate);
 
-            filmLikesDao.removeLike(film, user);
+            filmLikesDao.removeLike(filmId, userId);
             filmStorage.updateFilm(film);
         }
     }

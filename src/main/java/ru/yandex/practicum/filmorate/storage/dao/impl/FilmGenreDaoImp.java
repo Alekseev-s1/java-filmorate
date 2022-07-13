@@ -26,8 +26,8 @@ public class FilmGenreDaoImp implements FilmGenreDao {
 
     @Override
     public void updateFilmGenre(Film film) {
-        List<Genre> dbGenres = genreDao.getFilmGenres(film.getId());
-        List<Genre> filmGenres = film.getGenres();
+        Set<Genre> dbGenres = Set.copyOf(genreDao.getFilmGenres(film.getId()));
+        Set<Genre> filmGenres = film.getGenres();
         if (!dbGenres.equals(filmGenres) && filmGenres != null) {
             String deleteSqlQuery = "DELETE FROM film_genre " +
                     "WHERE film_id = ?";

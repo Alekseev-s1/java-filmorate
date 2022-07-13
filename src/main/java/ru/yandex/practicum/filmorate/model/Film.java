@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)
@@ -32,7 +33,7 @@ public class Film {
     @PositiveOrZero(message = "Значение поля rate не может быть отрицательным")
     private int rate;
     private List<Long> likedUsersId;
-    private List<Genre> genres;
+    private Set<Genre> genres;
     private MPARating mpa;
 
     @Override
