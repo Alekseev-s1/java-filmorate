@@ -9,6 +9,7 @@ public interface UserStorage {
     User createUser(User user);
     User updateUser(User user);
     List<User> getAllUsers();
-    Optional<User> getUserById(long id);
-    List<User> getFriends(User user);
+    Optional<User> getUserById(long userId);
+    List<User> getFriends(long userId);
+    List<User> getLikedUsers(long filmId);
 }

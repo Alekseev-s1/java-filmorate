@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -9,36 +10,39 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmLikesDao;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FilmLikesDao filmLikesDao;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       FilmLikesDao filmLikesDao) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.filmLikesDao = filmLikesDao;
     }
 
     public List<Film> getAllFilms() {
         return filmStorage.getAllFilms();
     }
 
-    public Film getFilmById(long id) {
-        return filmStorage.getFilmById(id)
-                .orElseThrow(() -> new ItemNotFoundException(String.format("Фильм с id = %d не найден!", id)));
+    public Film getFilmById(long filmId) {
+        return filmStorage.getFilmById(filmId)
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Фильм с id = %d не найден!", filmId)));
     }
 
-    private User getUserById(long id) {
-        return userStorage.getUserById(id)
-                .orElseThrow(() -> new ItemNotFoundException(String.format("Пользователь с id = %d не найден!", id)));
+    private User getUserById(long userId) {
+        return userStorage.getUserById(userId)
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Пользователь с id = %d не найден!", userId)));
     }
 
     public Film createFilm(Film film) {
@@ -54,32 +58,32 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         Film film = getFilmById(filmId);
-        getUserById(userId);
+        User user = getUserById(userId);
 
         if (!film.getLikedUsersId().contains(userId)) {
-            int likesCount = film.getLikesCount();
-            film.setLikesCount(++likesCount);
-            film.getLikedUsersId().add(userId);
+            int filmRate = film.getRate();
+            film.setRate(++filmRate);
+
+            filmLikesDao.addLike(film, user);
+            filmStorage.updateFilm(film);
         }
     }
 
     public void removeLike(long filmId, long userId) {
         Film film = getFilmById(filmId);
-        getUserById(userId);
+        User user = getUserById(userId);
 
         if (film.getLikedUsersId().contains(userId)) {
-            int likesCount = film.getLikesCount();
-            film.getLikedUsersId().remove(userId);
-            film.setLikesCount(--likesCount);
+            int filmRate = film.getRate();
+            film.setRate(--filmRate);
+
+            filmLikesDao.removeLike(film, user);
+            filmStorage.updateFilm(film);
         }
     }
 
     public List<Film> getPopularFilms(int count) {
-        List<Film> allFilms = filmStorage.getAllFilms();
-        return allFilms.stream()
-                .sorted(Comparator.comparingInt(Film::getLikesCount).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.getPopularFilms(count);
     }
 
     private void createFilmValidation(Film film) {

@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FriendshipDao;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,20 +15,24 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class UserService {
+
     private final UserStorage userStorage;
+    private final FriendshipDao friendshipDao;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
+                       FriendshipDao friendshipDao) {
         this.userStorage = userStorage;
+        this.friendshipDao = friendshipDao;
     }
 
     public List<User> getAllUsers() {
         return userStorage.getAllUsers();
     }
 
-    public User getUserById(long id) {
-        return userStorage.getUserById(id)
-                .orElseThrow(() -> new ItemNotFoundException(String.format("Пользователь с id = %d не найден!", id)));
+    public User getUserById(long userId) {
+        return userStorage.getUserById(userId)
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Пользователь с id = %d не найден!", userId)));
     }
 
     public User createUser(User user) {
@@ -44,29 +50,31 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
-        user.getFriendsId().add(friendId);
-        friend.getFriendsId().add(userId);
+        if (!user.getFriendsId().contains(friendId) && !friend.getFriendsId().contains(userId)) {
+            friendshipDao.addFriend(user, friend);
+        }
     }
 
     public void removeFriend(long userId, long friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
-        user.getFriendsId().remove(friendId);
-        friend.getFriendsId().remove(userId);
+        if (user.getFriendsId().contains(friendId)) {
+            friendshipDao.removeFriend(user, friend);
+        }
     }
 
     public List<User> getAllFriends(long userId) {
-        User user = getUserById(userId);
-        return userStorage.getFriends(user);
+        getUserById(userId);
+        return userStorage.getFriends(userId);
     }
 
     public List<User> getCommonFriends(long userId, long otherUserId) {
-        User user = getUserById(userId);
-        User otherUser = getUserById(otherUserId);
+        getUserById(userId);
+        getUserById(otherUserId);
 
-        List<User> userFriends = userStorage.getFriends(user);
-        List<User> otherUserFriends = userStorage.getFriends(otherUser);
+        List<User> userFriends = userStorage.getFriends(userId);
+        List<User> otherUserFriends = userStorage.getFriends(otherUserId);
 
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
