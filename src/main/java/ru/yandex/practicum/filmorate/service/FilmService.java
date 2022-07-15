@@ -60,26 +60,20 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         Film film = getFilmById(filmId);
-        getUserById(userId);
+        User user = getUserById(userId);
 
         if (!film.getLikedUsersId().contains(userId)) {
-            int filmRate = film.getRate();
-            film.setRate(++filmRate);
-
-            filmLikesDao.addLike(filmId, userId);
+            filmLikesDao.addLike(film, user);
             filmStorage.updateFilm(film);
         }
     }
 
     public void removeLike(long filmId, long userId) {
         Film film = getFilmById(filmId);
-        getUserById(userId);
+        User user = getUserById(userId);
 
         if (film.getLikedUsersId().contains(userId)) {
-            int filmRate = film.getRate();
-            film.setRate(--filmRate);
-
-            filmLikesDao.removeLike(filmId, userId);
+            filmLikesDao.removeLike(film, user);
             filmStorage.updateFilm(film);
         }
     }

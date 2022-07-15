@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.net.URI;
 import java.time.Duration;
@@ -82,6 +84,7 @@ public class FilmControllerTest {
                         "dictumst. Dui ornare ornare cras no")
                 .releaseDate(RELEASE_DATE)
                 .duration(DURATION)
+                .mpa(MPARating.G)
                 .build();
 
         this.mockMvc
@@ -114,6 +117,7 @@ public class FilmControllerTest {
                 .description(FILM_DESC)
                 .releaseDate(LocalDate.of(1895, 12, 28))
                 .duration(DURATION)
+                .mpa(MPARating.G)
                 .build();
 
         this.mockMvc
