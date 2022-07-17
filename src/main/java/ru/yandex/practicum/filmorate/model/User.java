@@ -8,7 +8,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -17,17 +16,16 @@ import java.util.Objects;
 public class User {
     private long id;
 
-    @NotBlank(message = "Электронная почта (email) обязательна для заполнения")
+    @NotBlank(message = "Значение параметра email должно быть заполнено")
     @Email(message = "Неверный формат электронной почты (email)")
     private String email;
 
-    @NotBlank(message = "Поле login обязательно для заполнения")
+    @NotBlank(message = "Значение параметра login должно быть заполнено")
     private String login;
     private String name;
 
     @PastOrPresent(message = "Дата рождения birthday не может быть больше текущей")
     private LocalDate birthday;
-    private List<Long> friendsId;
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();

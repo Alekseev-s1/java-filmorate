@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+import javax.validation.constraints.NotBlank;
+
 @Getter
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum MPARating {
@@ -15,6 +17,7 @@ public enum MPARating {
     NC_17(5, "NC-17");
 
     private final int id;
+    @NotBlank(message = "Значение параметра name должно быть заполнено")
     private final String name;
 
     MPARating(int id, String name) {

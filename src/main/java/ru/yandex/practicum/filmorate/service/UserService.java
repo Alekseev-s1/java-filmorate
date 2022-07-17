@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -10,9 +9,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FriendshipDao;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class UserService {
 
@@ -36,12 +33,10 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        createUserValidation(user);
         return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
-        createUserValidation(user);
         getUserById(user.getId());
         return userStorage.updateUser(user);
     }
@@ -49,42 +44,32 @@ public class UserService {
     public void addFriend(long userId, long friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
+        List<User> userFriends = friendshipDao.getFriends(userId);
 
-        if (!user.getFriendsId().contains(friendId) && !friend.getFriendsId().contains(userId)) {
+        if (!userFriends.contains(friend)) {
             friendshipDao.addFriend(userId, friendId);
         }
     }
 
     public void removeFriend(long userId, long friendId) {
         User user = getUserById(userId);
-        getUserById(friendId);
+        User friend = getUserById(friendId);
+        List<User> friends = friendshipDao.getFriends(userId);
 
-        if (user.getFriendsId().contains(friendId)) {
+        if (friends.contains(friend)) {
             friendshipDao.removeFriend(userId, friendId);
         }
     }
 
     public List<User> getAllFriends(long userId) {
         getUserById(userId);
-        return userStorage.getFriends(userId);
+        return friendshipDao.getFriends(userId);
     }
 
     public List<User> getCommonFriends(long userId, long otherUserId) {
         getUserById(userId);
         getUserById(otherUserId);
 
-        List<User> userFriends = userStorage.getFriends(userId);
-        List<User> otherUserFriends = userStorage.getFriends(otherUserId);
-
-        return userFriends.stream()
-                .filter(otherUserFriends::contains)
-                .collect(Collectors.toList());
-    }
-
-    private void createUserValidation(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.warn("Попытка добавить пользователя с пустым именем!");
-            user.setName(user.getLogin());
-        }
+        return friendshipDao.getCommonFriends(userId, otherUserId);
     }
 }

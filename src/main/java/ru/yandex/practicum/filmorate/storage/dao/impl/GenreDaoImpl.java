@@ -43,16 +43,6 @@ public class GenreDaoImpl implements GenreDao {
         }
     }
 
-    @Override
-    public List<Genre> getFilmGenres(long filmId) {
-        String sqlQuery = "SELECT * " +
-                "FROM genres " +
-                "WHERE genre_id IN (SELECT genre_id FROM film_genre WHERE film_id = ?) " +
-                "ORDER BY genre_id";
-
-        return jdbcTemplate.query(sqlQuery, this::mapRowToGenre, filmId);
-    }
-
     private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
         return new Genre(resultSet.getInt("genre_id"),
                 resultSet.getString("name"));

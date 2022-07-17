@@ -6,29 +6,28 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.dao.FilmGenreDao;
-import ru.yandex.practicum.filmorate.storage.dao.GenreDao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class FilmGenreDaoImp implements FilmGenreDao {
 
     private final JdbcTemplate jdbcTemplate;
-    private final GenreDao genreDao;
 
     @Autowired
-    public FilmGenreDaoImp(JdbcTemplate jdbcTemplate, GenreDao genreDao) {
+    public FilmGenreDaoImp(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.genreDao = genreDao;
     }
 
     @Override
     public void updateFilmGenre(Film film) {
-        Set<Genre> dbGenres = Set.copyOf(genreDao.getFilmGenres(film.getId()));
         Set<Genre> filmGenres = film.getGenres();
-        if (!dbGenres.equals(filmGenres) && filmGenres != null) {
+        Set<Genre> dbFilmGenres = Set.copyOf(getGenresByFilm(film));
+
+        if (filmGenres != null && !filmGenres.equals(dbFilmGenres)) {
             String deleteSqlQuery = "DELETE FROM film_genre " +
                     "WHERE film_id = ?";
             String createSqlQuery = "INSERT INTO film_genre (film_id, genre_id) " +
@@ -37,5 +36,23 @@ public class FilmGenreDaoImp implements FilmGenreDao {
             jdbcTemplate.update(deleteSqlQuery, film.getId());
             filmGenres.forEach(genre -> jdbcTemplate.update(createSqlQuery, film.getId(), genre.getId()));
         }
+
+    }
+
+    @Override
+    public List<Genre> getGenresByFilm(Film film) {
+        String sqlQuery = "SELECT * " +
+                "FROM genres g " +
+                "WHERE g.genre_id IN (" +
+                "SELECT fg.genre_id " +
+                "FROM film_genre fg " +
+                "WHERE fg.film_id = ?)";
+
+        return jdbcTemplate.query(sqlQuery, this::mapRowToGenre, film.getId());
+    }
+
+    private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
+        return new Genre(resultSet.getInt("genre_id"),
+                resultSet.getString("name"));
     }
 }

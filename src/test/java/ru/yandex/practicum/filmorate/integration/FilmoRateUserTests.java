@@ -117,7 +117,7 @@ public class FilmoRateUserTests {
         friendshipDao.addFriend(1, 2);
         friendshipDao.addFriend(1, 3);
 
-        List<User> friends = userStorage.getFriends(1);
+        List<User> friends = friendshipDao.getFriends(1);
 
         assertThat(friends, hasSize(2));
         assertThat(friends.get(0).getName(), equalTo("Den"));
@@ -145,7 +145,7 @@ public class FilmoRateUserTests {
         jdbcTemplate.update(createFriendQuery2);
 
         friendshipDao.removeFriend(1, 2);
-        List<User> friends = userStorage.getFriends(1);
+        List<User> friends = friendshipDao.getFriends(1);
 
         assertThat(friends, hasSize(1));
         assertThat(friends.get(0).getName(), equalTo("Fred"));

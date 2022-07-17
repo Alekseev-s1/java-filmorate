@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FilmLikesDao;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +62,7 @@ public class FilmoRateFilmTests {
                 .name("Senna")
                 .description("Some description")
                 .releaseDate(LocalDate.of(2010, 11, 11))
-                .duration(Duration.ofMinutes(100))
+                .duration(100)
                 .rate(5)
                 .mpa(MPARating.G)
                 .build();
@@ -82,7 +81,7 @@ public class FilmoRateFilmTests {
                 .name("Home alone")
                 .description("Some description1")
                 .releaseDate(LocalDate.of(1990, 11, 11))
-                .duration(Duration.ofMinutes(101))
+                .duration(101)
                 .rate(4)
                 .mpa(MPARating.NC_17)
                 .build();
@@ -138,9 +137,8 @@ public class FilmoRateFilmTests {
         User user = userStorage.getUserById(1).get();
         filmLikesDao.addLike(film, user);
 
-        Film film1 = filmStorage.getFilmById(1).get();
-        List<Long> likedUsersId = film1.getLikedUsersId();
-        assertThat(likedUsersId.get(0), equalTo(1L));
+        List<User> likedUsersId = filmLikesDao.getLikedUsers(1);
+        assertThat(likedUsersId.get(0).getId(), equalTo(1L));
     }
 
     @Test
@@ -159,8 +157,7 @@ public class FilmoRateFilmTests {
         User user = userStorage.getUserById(1).get();
         filmLikesDao.removeLike(film, user);
 
-        Film film1 = filmStorage.getFilmById(1).get();
-        List<Long> likedUsersId = film1.getLikedUsersId();
+        List<User> likedUsersId = filmLikesDao.getLikedUsers(1);
         assertThat(likedUsersId, hasSize(0));
     }
 }

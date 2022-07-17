@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class UserDbStorage implements UserStorage {
@@ -48,7 +47,7 @@ public class UserDbStorage implements UserStorage {
                 user.getId());
 
         return getUserById(user.getId()).get();
-     }
+    }
 
     @Override
     public List<User> getAllUsers() {
@@ -70,24 +69,6 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    @Override
-    public List<User> getFriends(long userId) {
-        String sqlQuery = "SELECT * " +
-                "FROM users " +
-                "WHERE user_id IN (SELECT friend_id FROM friends f WHERE f.user_id = ?)";
-
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId);
-    }
-
-    @Override
-    public List<User> getLikedUsers(long filmId) {
-        String sqlQuery = "SELECT * " +
-                "FROM users " +
-                "WHERE user_id IN (SELECT user_id FROM user_film_likes WHERE film_id = ?)";
-
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, filmId);
-    }
-
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getLong("user_id"))
@@ -95,9 +76,6 @@ public class UserDbStorage implements UserStorage {
                 .login(resultSet.getString("login"))
                 .email(resultSet.getString("email"))
                 .birthday(resultSet.getTimestamp("birthday").toLocalDateTime().toLocalDate())
-                .friendsId(getFriends(resultSet.getLong("user_id")).stream()
-                        .map(User::getId)
-                        .collect(Collectors.toList()))
                 .build();
     }
 }

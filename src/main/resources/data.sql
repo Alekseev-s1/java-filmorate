@@ -49,20 +49,20 @@ VALUES ('Приключения');
 -- VALUES ('Pol', 'polLog', 'pol@test.com', '1996-01-01');
 --
 --
--- INSERT INTO friends (user_id, friend_id, friendship_state)
--- VALUES (1, 2, 'ACCEPTED');
+-- INSERT INTO friends (user_id, friend_id)
+-- VALUES (1, 2);
 --
--- INSERT INTO friends (user_id, friend_id, friendship_state)
--- VALUES (1, 3, 'ACCEPTED');
+-- INSERT INTO friends (user_id, friend_id)
+-- VALUES (1, 3);
 --
--- INSERT INTO friends (user_id, friend_id, friendship_state)
--- VALUES (2, 1, 'ACCEPTED');
+-- INSERT INTO friends (user_id, friend_id)
+-- VALUES (2, 1);
 --
--- INSERT INTO friends (user_id, friend_id, friendship_state)
--- VALUES (3, 1, 'ACCEPTED');
+-- INSERT INTO friends (user_id, friend_id)
+-- VALUES (3, 1);
 --
--- INSERT INTO friends (user_id, friend_id, friendship_state)
--- VALUES (4, 5, 'NOT_ACCEPTED');
+-- INSERT INTO friends (user_id, friend_id)
+-- VALUES (4, 5);
 --
 --
 -- INSERT INTO films (name, description, release_date, duration, rating_id)

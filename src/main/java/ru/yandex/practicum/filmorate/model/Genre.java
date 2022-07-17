@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 @Getter
@@ -10,6 +11,7 @@ import java.util.Objects;
 public class Genre {
 
     private final int id;
+    @NotBlank(message = "Значение параметра name должно быть заполнено")
     private final String name;
 
     public Genre(int id, String name) {

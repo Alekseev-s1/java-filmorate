@@ -57,7 +57,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.email", is("Электронная почта (email) обязательна для заполнения")));
+                        .jsonPath("$.email", is("Значение параметра email должно быть заполнено")));
     }
 
     @Test
@@ -106,7 +106,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.login", is("Поле login обязательно для заполнения")));
+                        .jsonPath("$.login", is("Значение параметра login должно быть заполнено")));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.login", is("Поле login обязательно для заполнения")));
+                        .jsonPath("$.login", is("Значение параметра login должно быть заполнено")));
     }
 
     @Test
