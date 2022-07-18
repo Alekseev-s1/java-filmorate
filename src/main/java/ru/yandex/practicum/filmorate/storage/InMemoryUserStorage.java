@@ -10,23 +10,23 @@ import java.util.*;
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
+    private final FilmStorage filmStorage = new InMemoryFilmStorage();
     private long userId = 1;
 
 
     @Override
-    public User createUser(User user) {
+    public long createUser(User user) {
         user.setId(userId++);
         users.put(user.getId(), user);
         log.debug("Добавлен пользователь {}", user);
-        return user;
+        return user.getId();
     }
 
     @Override
-    public User updateUser(User user) {
+    public void updateUser(User user) {
         log.debug("Обновляемый пользователь: {}", users.get(user.getId()));
         users.put(user.getId(), user);
         log.debug("Обновленный пользователь: {}", user);
-        return user;
     }
 
     @Override
@@ -35,15 +35,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getUserById(long id) {
-        return Optional.ofNullable(users.get(id));
-    }
-
-    @Override
-    public List<User> getFriends(User user) {
-        Set<Long> friendsId = user.getFriendsId();
-        List<User> friends = new ArrayList<>();
-        friendsId.forEach(friendId -> friends.add(users.get(friendId)));
-        return friends;
+    public Optional<User> getUserById(long userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 }

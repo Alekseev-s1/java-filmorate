@@ -4,11 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -16,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-
+    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
     private final FilmService filmService;
 
     @Autowired
@@ -26,11 +28,13 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
+        createUpdateFilmValidation(film);
         return filmService.createFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
+        createUpdateFilmValidation(film);
         return filmService.updateFilm(film);
     }
 
@@ -63,5 +67,12 @@ public class FilmController {
     @GetMapping("/popular")
     public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
         return filmService.getPopularFilms(count);
+    }
+
+    private void createUpdateFilmValidation(Film film) {
+        if (film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+            log.warn("Попытка добавить фильм с датой релиза раньше 28 декабря 1895");
+            throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895");
+        }
     }
 }

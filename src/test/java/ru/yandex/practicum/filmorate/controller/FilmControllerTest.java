@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.net.URI;
 import java.time.Duration;
@@ -32,7 +34,8 @@ public class FilmControllerTest {
     private static final String FILM_NAME = "Test name";
     private static final String FILM_DESC = "Test description";
     private static final LocalDate RELEASE_DATE = LocalDate.now().minusYears(1);
-    private static final Duration DURATION = Duration.ofMinutes(70);
+    private static final long DURATION = 70;
+    private static final MPARating MPA = MPARating.G;
 
     private static ObjectMapper objectMapper;
 
@@ -48,13 +51,14 @@ public class FilmControllerTest {
                 .description(FILM_DESC)
                 .releaseDate(RELEASE_DATE)
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.name", is("Поле name должно быть заполнено")));
+                        .jsonPath("$.name", is("Значение параметра name должно быть заполнено")));
     }
 
     @Test
@@ -64,13 +68,14 @@ public class FilmControllerTest {
                 .description(FILM_DESC)
                 .releaseDate(RELEASE_DATE)
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.name", is("Поле name должно быть заполнено")));
+                        .jsonPath("$.name", is("Значение параметра name должно быть заполнено")));
     }
 
     @Test
@@ -82,6 +87,7 @@ public class FilmControllerTest {
                         "dictumst. Dui ornare ornare cras no")
                 .releaseDate(RELEASE_DATE)
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
@@ -98,13 +104,14 @@ public class FilmControllerTest {
                         "dictumst. Dui ornare ornare cras noo")
                 .releaseDate(RELEASE_DATE)
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.description", is("Значение поля description не может превышать 200 символов")));
+                        .jsonPath("$.description", is("Значение параметра description не может превышать 200 символов")));
     }
 
     @Test
@@ -114,6 +121,7 @@ public class FilmControllerTest {
                 .description(FILM_DESC)
                 .releaseDate(LocalDate.of(1895, 12, 28))
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
@@ -128,6 +136,7 @@ public class FilmControllerTest {
                 .description(FILM_DESC)
                 .releaseDate(LocalDate.of(1895, 12, 27))
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
@@ -144,15 +153,15 @@ public class FilmControllerTest {
                 .name(FILM_NAME)
                 .description(FILM_DESC)
                 .releaseDate(RELEASE_DATE)
-                .duration(Duration.ofMinutes(-1))
+                .duration(-1)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .content()
-                        .string("Значение поля duration должно быть положительным числом"));
+                        .jsonPath("$.duration", is("Значение параметра duration должно быть положительным числом")));
     }
 
     @Test
@@ -161,15 +170,15 @@ public class FilmControllerTest {
                 .name(FILM_NAME)
                 .description(FILM_DESC)
                 .releaseDate(RELEASE_DATE)
-                .duration(Duration.ofMinutes(0))
+                .duration(0)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(film)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .content()
-                        .string("Значение поля duration должно быть положительным числом"));
+                        .jsonPath("$.duration", is("Значение параметра duration должно быть положительным числом")));
     }
 
     @Test
@@ -179,6 +188,7 @@ public class FilmControllerTest {
                 .description(FILM_DESC)
                 .releaseDate(RELEASE_DATE)
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc
@@ -197,6 +207,7 @@ public class FilmControllerTest {
                 .description(FILM_DESC)
                 .releaseDate(RELEASE_DATE)
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         System.out.println(objectMapper.writeValueAsString(film));
@@ -217,6 +228,7 @@ public class FilmControllerTest {
                 .description(FILM_DESC)
                 .releaseDate(RELEASE_DATE)
                 .duration(DURATION)
+                .mpa(MPA)
                 .build();
 
         this.mockMvc

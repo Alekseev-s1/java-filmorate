@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserControllerTest {
 
     @Autowired
@@ -55,7 +57,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.email", is("Электронная почта (email) обязательна для заполнения")));
+                        .jsonPath("$.email", is("Значение параметра email должно быть заполнено")));
     }
 
     @Test
@@ -104,7 +106,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.login", is("Поле login обязательно для заполнения")));
+                        .jsonPath("$.login", is("Значение параметра login должно быть заполнено")));
     }
 
     @Test
@@ -120,7 +122,7 @@ public class UserControllerTest {
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$.login", is("Поле login обязательно для заполнения")));
+                        .jsonPath("$.login", is("Значение параметра login должно быть заполнено")));
     }
 
     @Test
@@ -164,7 +166,7 @@ public class UserControllerTest {
 
         this.mockMvc
                 .perform(post(uri).content(objectMapper.writeValueAsString(user)).contentType("application/json"))
-                .andExpect(MockMvcResultMatchers.jsonPath("name").value(LOGIN));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(LOGIN));
     }
 
     @Test
