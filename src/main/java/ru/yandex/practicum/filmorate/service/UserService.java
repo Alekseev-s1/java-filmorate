@@ -33,12 +33,14 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        return userStorage.createUser(user);
+        long userId = userStorage.createUser(user);
+        return getUserById(userId);
     }
 
     public User updateUser(User user) {
         getUserById(user.getId());
-        return userStorage.updateUser(user);
+        userStorage.updateUser(user);
+        return getUserById(user.getId());
     }
 
     public void addFriend(long userId, long friendId) {

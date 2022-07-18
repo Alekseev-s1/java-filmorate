@@ -46,14 +46,17 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) {
-        return filmStorage.createFilm(film);
+        long id = filmStorage.createFilm(film);
+        filmGenreDao.updateFilmGenre(film);
+        return getFilmById(id);
     }
 
     public Film updateFilm(Film film) {
         getFilmById(film.getId());
 
+        filmStorage.updateFilm(film);
         filmGenreDao.updateFilmGenre(film);
-        return filmStorage.updateFilm(film);
+        return getFilmById(film.getId());
     }
 
     public void addLike(long filmId, long userId) {

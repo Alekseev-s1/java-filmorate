@@ -27,11 +27,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film createFilm(Film film) {
+    public long createFilm(Film film) {
         String filmSqlQuery = "INSERT INTO films(name, description, release_date, duration, likes_count, rating_id) " +
                 "VALUES(?, ?, ?, ?, ?, ?)";
-        String genreSqlQuery = "INSERT INTO film_genre(film_id, genre_id) " +
-                "VALUES(?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -46,17 +44,12 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
 
         long filmId = keyHolder.getKey().longValue();
-
-        Set<Genre> genres = film.getGenres();
-        if (genres != null && !genres.isEmpty()) {
-            genres.forEach(genre -> jdbcTemplate.update(genreSqlQuery, filmId, genre.getId()));
-        }
-
-        return getFilmById(filmId).get();
+        film.setId(filmId);
+        return filmId;
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public void updateFilm(Film film) {
         String filmSqlQuery = "UPDATE films " +
                 "SET name = ?, description = ?, release_date = ?, duration = ?, likes_count = ?, rating_id = ? " +
                 "WHERE film_id = ?";
@@ -69,8 +62,6 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRate(),
                 film.getMpa().getId(),
                 film.getId());
-
-        return getFilmById(film.getId()).get();
     }
 
     @Override

@@ -14,19 +14,18 @@ public class InMemoryFilmStorage implements FilmStorage {
     private long filmId = 1;
 
     @Override
-    public Film createFilm(Film film) {
+    public long createFilm(Film film) {
         film.setId(filmId++);
         films.put(film.getId(), film);
         log.debug("Добавлен фильм {}", film);
-        return film;
+        return film.getId();
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public void updateFilm(Film film) {
         log.debug("Обновляемый фильм: {}", films.get(film.getId()));
         films.put(film.getId(), film);
         log.debug("Обновленный фильм: {}", film);
-        return film;
     }
 
     @Override

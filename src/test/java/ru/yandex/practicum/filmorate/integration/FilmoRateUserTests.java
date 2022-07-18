@@ -77,7 +77,9 @@ public class FilmoRateUserTests {
                 .email("john@test.com")
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
-        User createdUser = userStorage.createUser(user);
+
+        long userId = userStorage.createUser(user);
+        User createdUser = userStorage.getUserById(userId).get();
 
         assertThat(createdUser.getId(), equalTo(1L));
         assertThat(createdUser.getName(), equalTo("John"));
@@ -96,7 +98,8 @@ public class FilmoRateUserTests {
                 .build();
         jdbcTemplate.update(createUserQuery);
 
-        User updatedUser = userStorage.updateUser(user);
+        userStorage.updateUser(user);
+        User updatedUser = userStorage.getUserById(1).get();
 
         assertThat(updatedUser.getId(), equalTo(1L));
         assertThat(updatedUser.getName(), equalTo("John"));

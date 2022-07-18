@@ -67,7 +67,8 @@ public class FilmoRateFilmTests {
                 .mpa(MPARating.G)
                 .build();
 
-        Film createdFilm = filmStorage.createFilm(film);
+        long filmId = filmStorage.createFilm(film);
+        Film createdFilm = filmStorage.getFilmById(filmId).get();
         assertThat(createdFilm.getId(), equalTo(1L));
         assertThat(createdFilm.getName(), equalTo("Senna"));
     }
@@ -87,7 +88,8 @@ public class FilmoRateFilmTests {
                 .build();
         jdbcTemplate.update(createFilmQuery);
 
-        Film updatedFilm = filmStorage.updateFilm(film);
+        filmStorage.updateFilm(film);
+        Film updatedFilm = filmStorage.getFilmById(1).get();
         assertThat(updatedFilm.getId(), equalTo(1L));
         assertThat(updatedFilm.getName(), equalTo("Home alone"));
     }
